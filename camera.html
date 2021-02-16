@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カメラ画面</title>
+</head>
+<body>
+    <div>
+        <video id="player" width="800" height="600"></video>
+        <canvas id="snapshot" width="800" height="600"></canvas>
+    </div>
+    <div>
+        <button type="button" id="shutter">撮影</button>
+    </div>
+</body>
+<script>
+    let player = document.getElementById("player");
+    let snapshotCanvas = document.getElementById("snapshot");
+
+    /** カメラ設定 */
+    let cameraSetting = {
+        audio: false,
+        video: {
+            width: 800,
+            height: 600,
+            // facingMode: "user // フロントカメラ
+            facingMode:{exact: "environment"} // リアカメラ
+        }
+    }
+
+    window.onload = () => {
+        /** カメラの起動要求*/
+        // 起動許可が降りた場合、カメラ起動
+        navigator.mediaDevices.getUserMedia(cameraSetting)
+        .then((stream) => {
+            player.srcObject = stream;
+            player.onloadedmetadata = (e) => {
+                player.play();
+            }
+        })
+        .catch((err) => {
+            console.log(err.name + ": " + err.message);
+        })
+    }
+
+    /** シャッター*/
+    document.querySelector("#shutter").addEventListener("click", () => {
+        const ctx = snapshotCanvas.getContext("2d");
+
+        player.pause(); // 映像停止
+        setTimeout( () => {
+            player.play(); // 0.5秒後にカメラ再開
+        }, 500);
+
+        // canvasに画像を貼り付ける
+        ctx.drawImage(player, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+    })
+</script>
+</html>
