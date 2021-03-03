@@ -1,18 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カメラ画面</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link type="text/css" rel="stylesheet" href="lib/bootstrap-vue/dist/bootstrap-vue.min.css" />
+    <link type="text/css" rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>カメラ</title>
 </head>
+<script src="lib/vue/dist/vue.js"></script>
+<script src="lib/bootstrap-vue/dist/bootstrap-vue.js"></script>
+<script src="lib/bootstrap-vue/dist/bootstrap-vue-icons.min.js"></script>
+<script src="lib/jquery/dist/jquery.min.js"></script>
+<script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
+<style>
+    html {
+        font-size: 2.0em;
+    }
+
+    button:disabled{
+        border-color:  #000 !important;
+    }
+
+</style>
 <body>
     <div>
-        <video id="player" width="800" height="600"></video>
-        <canvas id="snapshot" width="800" height="600"></canvas>
-    </div>
-    <div>
-        <button type="button" id="shutter">撮影</button>
+        <div class="camera_area text-center">
+            <video id="player" width="1280" height="720"></video>
+            <canvas id="snapshot" width="1280" height="720"></canvas>
+        </div>
+        <div class="row text-center mt-5">
+            <div class="col-4">
+                <button type="button" class="btn btn-light btn-outline-dark btn-lg w-75 h-4em">戻る</button>
+            </div>
+            <div class="col-4">
+                <button type="button" id="shutter" class="btn btn-light btn-outline-dark btn-lg w-75">撮影</button>
+                <button type="button" id="reshutter" class="btn btn-light btn-outline-dark btn-lg w-75">撮り直す</button>
+            </div>
+            <div class="col-4">
+                <button type="button" id="sentaku" class="btn btn-light btn-outline-dark btn-lg w-75" disabled>選択</button>
+            </div>
+        </div>
     </div>
 </body>
 <script>
@@ -23,14 +50,25 @@
     let cameraSetting = {
         audio: false,
         video: {
-            width: 800,
-            height: 600,
+            width: 1280,
+            height: 720,
+            zoom:8.0,
             // facingMode: "user // フロントカメラ
             facingMode:{exact: "environment"} // リアカメラ
         }
     }
 
     window.onload = () => {
+
+
+
+        // TODO
+        console.log(navigator.mediaDevices.getSupportedConstraints());
+
+        // キャンバス、撮り直しボタンは隠す
+        $("#snapshot").hide();
+        $("#reshutter").hide();
+
         /** カメラの起動要求*/
         // 起動許可が降りた場合、カメラ起動
         navigator.mediaDevices.getUserMedia(cameraSetting)
@@ -56,6 +94,23 @@
 
         // canvasに画像を貼り付ける
         ctx.drawImage(player, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+
+        // カメラ画像を隠し、キャンバスを表示。選択ボタンを押下可能に
+        $(player).hide();
+        $(snapshotCanvas).show();
+        $("#sentaku").prop("disabled", false);
+        $("#reshutter").show();
+        $("#shutter").hide();
     })
+
+    /** 撮り直しボタンClickイベント*/
+    $("#reshutter").click(function(){
+        $(player).show();
+        $(snapshotCanvas).hide();
+        $("#sentaku").prop("disabled", true);
+        $("#reshutter").hide();
+        $("#shutter").show();
+    })
+
 </script>
 </html>
